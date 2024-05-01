@@ -19,15 +19,18 @@ public final class TestDataUtil {
         return new Author(3L, "Harsh N Haria", 24);
     }
 
-    public static Book createTestBookA() {
-        return new Book("A1", "Code never lies", 1L);
+//    public static Book createTestBookA(Author author) {
+//        return new Book("A1", "Code never lies", author);
+//    }
+    public static Book createTestBookA(Author author){
+        return Book.builder().isbn("A1").title("Code never lies").author(author).build();
     }
 
-    public static Book createTestBookB() {
-        return new Book("A2", "Code never lies", 1L);
+    public static Book createTestBookB(Author author) {
+        return new Book("A2", "Code never lies", author);
     }
 
-    public static Book createTestBookC() {
-        return new Book("A3", "Code never lies", 1L);
+    public static Book createTestBookC(Author author) {
+        return new Book("A3", "Code never lies", author);
     }
 }
