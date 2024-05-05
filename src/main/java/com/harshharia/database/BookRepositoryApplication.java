@@ -2,12 +2,9 @@ package com.harshharia.database;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
 
 @SpringBootApplication
-public class DatabaseApplication {
+public class BookRepositoryApplication {
 
 //	public final DataSource dataSource;
 //
@@ -19,7 +16,7 @@ public class DatabaseApplication {
 //	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(DatabaseApplication.class, args);
+		SpringApplication.run(BookRepositoryApplication.class, args);
 	}
 
 
