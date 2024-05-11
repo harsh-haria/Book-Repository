@@ -4,14 +4,12 @@ import com.harshharia.database.domain.dto.AuthorDto;
 import com.harshharia.database.domain.entities.AuthorEntity;
 import com.harshharia.database.mappers.Mapper;
 import com.harshharia.database.services.AuthorService;
-import org.springframework.http.HttpMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,7 +27,7 @@ public class AuthorController {
      @PostMapping(path = "/authors")
      public ResponseEntity<AuthorDto> createAuthor(@RequestBody AuthorDto author) {
           AuthorEntity authorEntity = authorMapper.mapFrom(author);
-          AuthorEntity savedAuthorEntity = authorService.createAuthor(authorEntity);
+          AuthorEntity savedAuthorEntity = authorService.save(authorEntity);
          return new ResponseEntity<>(authorMapper.mapTo(savedAuthorEntity), HttpStatus.CREATED) ;
      }
 
@@ -47,5 +45,20 @@ public class AuthorController {
                AuthorDto authorDto = authorMapper.mapTo(authorEntity);
                return new ResponseEntity<>(authorDto, HttpStatus.OK);
           }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+     }
+
+     @PutMapping("/authors/{id}")
+     public ResponseEntity<AuthorDto> fullUpdateAuthor(
+             @PathVariable Long id, @RequestBody AuthorDto author
+     ) {
+          if (!authorService.doesExists(id)) {
+               return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+          }
+
+          AuthorEntity authorEntity = authorMapper.mapFrom(author);
+          authorEntity.setId(id);
+          AuthorEntity savedAuthor = authorService.save(authorEntity);
+          AuthorDto returnAuthorDto = authorMapper.mapTo(savedAuthor);
+          return new ResponseEntity<AuthorDto>(returnAuthorDto, HttpStatus.OK);
      }
 }
