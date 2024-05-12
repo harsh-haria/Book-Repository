@@ -4,6 +4,7 @@ import com.harshharia.database.domain.dto.BookDto;
 import com.harshharia.database.domain.entities.BookEntity;
 
 import com.harshharia.database.mappers.Mapper;
+import com.harshharia.database.repositories.AuthorRepository;
 import com.harshharia.database.repositories.BookRepository;
 import com.harshharia.database.services.BookService;
 import org.springframework.http.HttpStatus;
@@ -18,14 +19,16 @@ import java.util.stream.Collectors;
 public class BookController {
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
     private BookService bookService;
 
     private Mapper<BookEntity, BookDto> bookMapper;
 
-    public BookController(Mapper<BookEntity, BookDto> bookMapper, BookService bookService, BookRepository bookRepository) {
+    public BookController(Mapper<BookEntity, BookDto> bookMapper, BookService bookService, BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookMapper = bookMapper;
         this.bookService = bookService;
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
     @PutMapping("/books/{isbn}")
@@ -75,4 +78,9 @@ public class BookController {
         return new ResponseEntity<>(returnBookDto, HttpStatus.OK);
     }
 
+    @DeleteMapping(path = "/books/{isbn}")
+    public ResponseEntity deleteBook(@PathVariable("isbn") String isbn) {
+        bookService.delete(isbn);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }

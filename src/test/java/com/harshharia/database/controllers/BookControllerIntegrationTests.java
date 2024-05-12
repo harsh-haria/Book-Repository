@@ -3,6 +3,7 @@ package com.harshharia.database.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harshharia.database.TestDataUtil;
 import com.harshharia.database.domain.dto.BookDto;
+import com.harshharia.database.domain.entities.AuthorEntity;
 import com.harshharia.database.domain.entities.BookEntity;
 import com.harshharia.database.mappers.impl.BookMapper;
 import com.harshharia.database.services.BookService;
@@ -198,6 +199,27 @@ public class BookControllerIntegrationTests {
                 MockMvcResultMatchers.jsonPath("$.title").value(updatedTitle)
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.author").value(bookDto.getAuthor())
+        );
+    }
+
+    @Test
+    public void testThatDeleteBookReturnsHttpStatus204WhenBookDoesntExists() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/books/9999")
+        ).andExpect(
+                MockMvcResultMatchers.status().isNoContent()
+        );
+    }
+
+    @Test
+    public void testThatDeleteAuthorReturnsHttpStatus204WhenAuthorExists() throws Exception {
+        BookEntity testBookA = TestDataUtil.createTestBookA(null);
+        bookService.createUpdateBook(testBookA.getIsbn(), testBookA);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/books/"+testBookA.getIsbn())
+        ).andExpect(
+                MockMvcResultMatchers.status().isNoContent()
         );
     }
 
