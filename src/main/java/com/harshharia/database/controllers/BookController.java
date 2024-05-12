@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,12 +26,19 @@ public class BookController {
     }
 
     @PutMapping("/books/{isbn}")
-    public ResponseEntity<BookDto> createBook(@PathVariable("isbn") String isbn,@RequestBody BookDto bookDto) {
+    public ResponseEntity<BookDto> createBook(@PathVariable("isbn") String isbn, @RequestBody BookDto bookDto) throws Exception {
+            Boolean bookExists = bookService.doesExists(isbn);
+            BookEntity bookEntity = bookMapper.mapFrom(bookDto);
+            BookEntity createdBook = bookService.createUpdateBook(isbn, bookEntity);
+            BookDto createdBookDto = bookMapper.mapTo(createdBook);
+        if (bookExists) {
+            // UPDATE
+            return new ResponseEntity<>(createdBookDto, HttpStatus.OK);
+        } else {
+            // CREATE
+            return new ResponseEntity<>(createdBookDto, HttpStatus.CREATED);
+        }
 
-        BookEntity bookEntity = bookMapper.mapFrom(bookDto);
-        BookEntity createdBook = bookService.createBook(isbn, bookEntity);
-        BookDto createdBookDto = bookMapper.mapTo(createdBook);
-        return new ResponseEntity<>(createdBookDto, HttpStatus.CREATED);
 
     }
 

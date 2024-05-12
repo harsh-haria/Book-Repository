@@ -22,11 +22,12 @@ import javax.print.attribute.standard.Media;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class AuthorControllerIntegrationTests {
 
     private AuthorService authorService;
+
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper;
@@ -113,7 +114,7 @@ public class AuthorControllerIntegrationTests {
     @Test
     public void testThatGetAuthorsReturnsHttpStatus404() throws  Exception {
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/authors/" + 1)
+                MockMvcRequestBuilders.get("/authors/" + 999)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.status().isNotFound()
