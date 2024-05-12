@@ -7,6 +7,8 @@ import com.harshharia.database.mappers.Mapper;
 import com.harshharia.database.repositories.AuthorRepository;
 import com.harshharia.database.repositories.BookRepository;
 import com.harshharia.database.services.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,11 +51,10 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public List<BookDto> listBooks() {
-        List<BookEntity> books = bookService.findAll();
-        return books.stream()
-                .map(bookMapper::mapTo)
-                .collect(Collectors.toList());
+    public Page<BookDto> listBooks(Pageable pageable) {
+        //http://localhost:8080/books?size=3&page=2 | can be used like this!
+        Page<BookEntity> books = bookService.findAllPageable(pageable);
+        return books.map(bookMapper::mapTo);
     }
 
     @GetMapping("/books/{isbn}")

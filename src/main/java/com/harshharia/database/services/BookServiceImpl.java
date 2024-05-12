@@ -4,6 +4,8 @@ import com.harshharia.database.domain.dto.BookDto;
 import com.harshharia.database.domain.entities.AuthorEntity;
 import com.harshharia.database.domain.entities.BookEntity;
 import com.harshharia.database.repositories.BookRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookEntity> findAll() {
         return StreamSupport.stream(bookRepository.findAll().spliterator(), false).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<BookEntity> findAllPageable(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     @Override
