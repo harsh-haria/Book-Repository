@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harshharia.database.TestDataUtil;
 import com.harshharia.database.domain.dto.BookDto;
 import com.harshharia.database.domain.entities.BookEntity;
+import com.harshharia.database.mappers.impl.BookMapper;
 import com.harshharia.database.services.BookService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,8 @@ public class BookControllerIntegrationTests {
     @Autowired
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
+    @Autowired
+    private BookMapper bookMapper;
 
     @Autowired
     public BookControllerIntegrationTests(MockMvc mockMvc, BookService bookService) {
@@ -155,6 +158,46 @@ public class BookControllerIntegrationTests {
                 MockMvcResultMatchers.jsonPath("$.title").value(testBookA.getTitle())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.author").value(testBookA.getAuthor())
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateBookReturnsHttpStatus200() throws Exception {
+        BookEntity testBookEntityA = TestDataUtil.createTestBookA(null);
+        BookEntity savedBookEntity = bookService.createUpdateBook(testBookEntityA.getIsbn(), testBookEntityA);
+        BookDto bookDto = bookMapper.mapTo(savedBookEntity);
+        String updatedTitle = "TEST UPDATED TITLE";
+        bookDto.setTitle(updatedTitle);
+        String bookJson = objectMapper.writeValueAsString(bookDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/books/" + bookDto.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookJson)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateBookReturnsUpdatedBook() throws Exception {
+        BookEntity testBookEntityA = TestDataUtil.createTestBookA(null);
+        BookEntity savedBookEntity = bookService.createUpdateBook(testBookEntityA.getIsbn(), testBookEntityA);
+        BookDto bookDto = bookMapper.mapTo(savedBookEntity);
+        String updatedTitle = "TEST UPDATED TITLE";
+        bookDto.setTitle(updatedTitle);
+        String bookJson = objectMapper.writeValueAsString(bookDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/books/" + bookDto.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookJson)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.isbn").value(bookDto.getIsbn())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.title").value(updatedTitle)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.author").value(bookDto.getAuthor())
         );
     }
 

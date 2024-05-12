@@ -4,6 +4,7 @@ import com.harshharia.database.domain.dto.BookDto;
 import com.harshharia.database.domain.entities.BookEntity;
 
 import com.harshharia.database.mappers.Mapper;
+import com.harshharia.database.repositories.BookRepository;
 import com.harshharia.database.services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,15 @@ import java.util.stream.Collectors;
 @RestController
 public class BookController {
 
+    private final BookRepository bookRepository;
     private BookService bookService;
 
     private Mapper<BookEntity, BookDto> bookMapper;
 
-    public BookController(Mapper<BookEntity, BookDto> bookMapper, BookService bookService) {
+    public BookController(Mapper<BookEntity, BookDto> bookMapper, BookService bookService, BookRepository bookRepository) {
         this.bookMapper = bookMapper;
         this.bookService = bookService;
+        this.bookRepository = bookRepository;
     }
 
     @PutMapping("/books/{isbn}")
@@ -57,6 +60,19 @@ public class BookController {
             BookDto bookDto1 = bookMapper.mapTo(bookEntity);
             return new ResponseEntity<>(bookDto1, HttpStatus.OK);
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PatchMapping("/books/{isbn}")
+    public ResponseEntity<BookDto> updateBook(
+            @PathVariable("isbn") String isbn, @RequestBody BookDto bookDto
+    ) {
+        if (!bookService.doesExists(isbn)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        BookEntity bookEntity = bookMapper.mapFrom(bookDto);
+        BookEntity updatedBookEntity = bookService.partialUpdate(isbn, bookEntity);
+        BookDto returnBookDto = bookMapper.mapTo(updatedBookEntity);
+        return new ResponseEntity<>(returnBookDto, HttpStatus.OK);
     }
 
 }
