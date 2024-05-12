@@ -5,6 +5,7 @@ import com.harshharia.database.TestDataUtil;
 import com.harshharia.database.domain.dto.AuthorDto;
 import com.harshharia.database.domain.entities.AuthorEntity;
 import com.harshharia.database.mappers.impl.AuthorMapperImpl;
+import com.harshharia.database.repositories.AuthorRepository;
 import com.harshharia.database.services.AuthorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ public class AuthorControllerIntegrationTests {
     private ObjectMapper objectMapper;
     @Autowired
     private AuthorMapperImpl authorMapperImpl;
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Autowired
     public AuthorControllerIntegrationTests(MockMvc mockMvc, AuthorService authorService) {
@@ -186,6 +189,52 @@ public class AuthorControllerIntegrationTests {
                 MockMvcResultMatchers.jsonPath("$.name").value(testAuthorB.getName())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.age").value(testAuthorB.getAge())
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateExistingAuthorReturnsHttpStatus200() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity testAuthorB = TestDataUtil.createTestAuthorB();
+        authorRepository.save(testAuthorA);
+
+        AuthorDto authorDto = authorMapperImpl.mapTo(testAuthorA);
+        authorDto.setName(testAuthorB.getName());
+        authorDto.setAge(testAuthorB.getAge());
+
+        String jsonAuthorDto = objectMapper.writeValueAsString(authorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/authors/"+testAuthorA.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonAuthorDto)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateExistingAuthorReturnsUpatedAuthor() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity testAuthorB = TestDataUtil.createTestAuthorB();
+        authorRepository.save(testAuthorA);
+
+        AuthorDto authorDto = authorMapperImpl.mapTo(testAuthorA);
+        authorDto.setName(testAuthorB.getName());
+        authorDto.setAge(testAuthorB.getAge());
+
+        String jsonAuthorDto = objectMapper.writeValueAsString(authorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/authors/"+testAuthorA.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonAuthorDto)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.id").value(testAuthorA.getId())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.name").value(authorDto.getName())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.age").value(authorDto.getAge())
         );
     }
 
